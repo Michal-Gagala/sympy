@@ -942,6 +942,18 @@ class Not(BooleanFunction):
             a, b, c = args
             return And._to_nnf(Or(a, Not(c)), Or(Not(a), Not(b)), simplify=simplify)
 
+        if func == NegImplies:
+            a, b = args
+            return Or._to_nnf(Not(a), b, simplify=simplify)
+
+        if func == RevImplies:
+            a, b = args
+            return And._to_nnf(Not(a), b, simplify=simplify)
+
+        if func == NegRevImplies:
+            a, b = args
+            return Or._to_nnf(a, Not(b), simplify=simplify)
+
         raise ValueError("Illegal operator %s in expression" % func)
 
     def to_anf(self, deep=True):
@@ -1260,6 +1272,98 @@ class Implies(BooleanFunction):
         a, b = self.args
         return Xor._to_anf(true, a, And(a, b), deep=deep)
 
+class RevImplies(BooleanFunction):
+    @classmethod
+    def eval(cls, *args):
+        try:
+            newargs = []
+            for x in args:
+                if isinstance(x, Number) or x in (0, 1):
+                    newargs.append(bool(x))
+                else:
+                    newargs.append(x)
+            A, B = newargs
+        except ValueError:
+            raise ValueError(
+                "%d operand(s) used for an Implies "
+                "(pairs are required): %s" % (len(args), str(args)))
+        if A in (True, False) or B in (True, False):
+            return Or(A, Not(B))
+        elif A == B:
+            return S.true
+        elif A.is_Relational and B.is_Relational:
+            if A.canonical == B.canonical:
+                return S.true
+            if A.negated.canonical == B.canonical:
+                return B
+        else:
+            return Basic.__new__(cls, *args)
+
+    def to_nnf(self, simplify=True):
+        a, b = self.args
+        return Or._to_nnf(a, Not(b), simplify=simplify)
+
+class NegImplies(BooleanFunction):
+    @classmethod
+    def eval(cls, *args):
+        try:
+            newargs = []
+            for x in args:
+                if isinstance(x, Number) or x in (0, 1):
+                    newargs.append(bool(x))
+                else:
+                    newargs.append(x)
+            A, B = newargs
+        except ValueError:
+            raise ValueError(
+                "%d operand(s) used for an Implies "
+                "(pairs are required): %s" % (len(args), str(args)))
+        if A in (True, False) or B in (True, False):
+            return And(A, Not(B))
+        elif A == B:
+            return S.true
+        elif A.is_Relational and B.is_Relational:
+            if A.canonical == B.canonical:
+                return S.true
+            if A.negated.canonical == B.canonical:
+                return B
+        else:
+            return Basic.__new__(cls, *args)
+
+    def to_nnf(self, simplify=True):
+        a, b = self.args
+        return And._to_nnf(a, Not(b), simplify=simplify)
+
+class NegRevImplies(BooleanFunction):
+    @classmethod
+    def eval(cls, *args):
+        try:
+            newargs = []
+            for x in args:
+                if isinstance(x, Number) or x in (0, 1):
+                    newargs.append(bool(x))
+                else:
+                    newargs.append(x)
+            A, B = newargs
+        except ValueError:
+            raise ValueError(
+                "%d operand(s) used for an Implies "
+                "(pairs are required): %s" % (len(args), str(args)))
+        if A in (True, False) or B in (True, False):
+            return And(Not(A), B)
+        elif A == B:
+            return S.true
+        elif A.is_Relational and B.is_Relational:
+            if A.canonical == B.canonical:
+                return S.true
+            if A.negated.canonical == B.canonical:
+                return B
+        else:
+            return Basic.__new__(cls, *args)
+
+    def to_nnf(self, simplify=True):
+        a, b = self.args
+        return And._to_nnf(Not(a), b, simplify=simplify)
 
 class Equivalent(BooleanFunction):
     """
