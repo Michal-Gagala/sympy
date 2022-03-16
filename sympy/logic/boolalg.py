@@ -1321,11 +1321,15 @@ class NegImplies(BooleanFunction):
         if A in (True, False) or B in (True, False):
             return And(A, Not(B))
         elif A == B:
+            print("wah")
             return S.true
         elif A.is_Relational and B.is_Relational:
+            print("wee")
             if A.canonical == B.canonical:
+                print("woo")
                 return S.true
             if A.negated.canonical == B.canonical:
+                print("woa")
                 return B
         else:
             return Basic.__new__(cls, *args)
