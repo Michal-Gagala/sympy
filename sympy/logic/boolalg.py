@@ -1294,8 +1294,8 @@ class RevImplies(BooleanFunction):
         elif A.is_Relational and B.is_Relational:
             if A.canonical == B.canonical:
                 return S.true
-            if A.negated.canonical == B.canonical:
-                return B
+            if A.canonical == B.negated.canonical:
+                return A
         else:
             return Basic.__new__(cls, *args)
 
@@ -1321,16 +1321,16 @@ class NegImplies(BooleanFunction):
         if A in (True, False) or B in (True, False):
             return And(A, Not(B))
         elif A == B:
-            print("wah")
-            return S.true
+            # print("wah")
+            return S.false
         elif A.is_Relational and B.is_Relational:
-            print("wee")
+            # print("wee")
             if A.canonical == B.canonical:
-                print("woo")
-                return S.true
+                # print("woo")
+                return S.false
             if A.negated.canonical == B.canonical:
-                print("woa")
-                return B
+                # print("woa")
+                return A
         else:
             return Basic.__new__(cls, *args)
 
@@ -1356,10 +1356,10 @@ class NegRevImplies(BooleanFunction):
         if A in (True, False) or B in (True, False):
             return And(Not(A), B)
         elif A == B:
-            return S.true
+            return S.false
         elif A.is_Relational and B.is_Relational:
             if A.canonical == B.canonical:
-                return S.true
+                return S.false
             if A.negated.canonical == B.canonical:
                 return B
         else:
